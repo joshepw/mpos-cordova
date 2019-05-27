@@ -1,0 +1,19 @@
+{
+    "name": "mpos",
+    "version": "1.0.0",
+    "description": "mPos Plugin for BT DSPReader",
+    "cordova": {
+      "id": "mpos",
+      "platforms": [
+        "android",
+        "ios"
+      ]
+    },
+    "keywords": [
+      "ecosystem:cordova",
+      "mpos"
+    ],
+    "author": "Ivan Suazo (Pixel)",
+    "license": "Apache 2.0"
+  }
+  

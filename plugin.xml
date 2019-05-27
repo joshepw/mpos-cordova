@@ -1,0 +1,55 @@
+<?xml version='1.0' encoding='utf-8'?>
+<plugin id="com.pixel.mpos" version="0.0.1" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+    <name>mPos</name>
+    <description>DSP Reader mPos Bluetooth</description>
+    <license>Apache 2.0</license>
+    <keywords>cordova,pixelpay,dsp</keywords>
+    <js-module name="mPos" src="www/mPos.js">
+        <clobbers target="cordova.plugins.mPos" />
+        <clobbers target="mPos" />
+    </js-module>
+    <platform name="ios">
+        <source-file src="src/ios/MPos.m" />
+        <header-file src="src/ios/MPos.h" />
+        <source-file src="src/ios/libqpos-ios-sdk.a" framework="true" />
+        <header-file src="src/ios/QPOSService.h" />
+        <header-file src="src/ios/BTDeviceFinder.h" />
+        <header-file src="src/ios/Util.h" />
+        <config-file target="config.xml" parent="/*">
+            <feature name="MPos">
+                <param name="ios-package" value="MPos"/>
+            </feature>
+        </config-file>
+        <framework src="CoreBluetooth.framework" />
+        <framework src="AudioToolbox.framework" />
+        <framework src="AVFoundation.framework" />
+    </platform>
+    <platform name="android">
+		<config-file parent="/*" target="res/xml/config.xml">
+			<feature name="MPos">
+				<param name="android-package" value="org.apache.cordova.pos.MPos" />
+			</feature>
+		</config-file>
+		
+		<config-file parent="/*" target="AndroidManifest.xml">
+			<uses-permission android:name="android.permission.BLUETOOTH" />
+			<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+			<uses-permission android:name="android.permission.RECORD_AUDIO" />
+			<uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+            <uses-permission android:name="android.permission.WAKE_LOCK" />
+			<uses-permission android:name="android.permission.INTERNET" />
+			<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+			<uses-feature android:name="android.hardware.usb.host" />
+		</config-file>
+		<config-file  target="AndroidManifest.xml" parent="/manifest/application">
+		</config-file>
+		<source-file src="src/android/MPos.java" target-dir="src/org/apache/cordova/pos" />
+		<source-file src="src/android/QPOSUtil.java" target-dir="src/org/apache/cordova/pos" />
+        <source-file src="src/android/libs/dspread_android_printer_sdk_1.0.1.jar" target-dir="libs" />
+		<source-file src="src/android/libs/android-support-v4.jar" target-dir="libs" />
+		<source-file src="src/android/libs/bcprov-ext-jdk15on-154.jar" target-dir="libs" />
+		<source-file src="src/android/libs/sun.misc.BASE64Decoder.jar" target-dir="libs" />
+		<source-file src="src/android/libs/injectKey.jar" target-dir="libs" />
+		<source-file src="src/android/libs/mpaysdk.jar" target-dir="libs" />
+    </platform>
+</plugin>
