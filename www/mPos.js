@@ -49,6 +49,7 @@ module.exports = mPos;
 // - onDeviceInfoResponse
 // - onDoTradeResponse
 // - onSetMasterKeyResponse
+// - onErrorResponse
 // - onRequestDisplay
 // - onRequestCard
 // - onRequestPinEntry

@@ -48,9 +48,7 @@ import com.dspread.xpos.QPOSService.QPOSServiceListener;
 import com.dspread.xpos.QPOSService.TransactionResult;
 import com.dspread.xpos.QPOSService.TransactionType;
 import com.dspread.xpos.QPOSService.UpdateInformationResult;
-import com.pnsol.sdk.miura.commands.Command;
 
-import Decoder.BASE64Decoder;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -110,22 +108,52 @@ public class MPos extends CordovaPlugin {
             enterPIN(args);
         else
             return false;
-            
+
         return true;
     }
 
     // CORDOVA EVENTS
     private void scanBTDevices(CordovaArgs args) throws JSONException {
+        logTrace("+++sdkVersion: " + pos.getSdkVersion());
+
         if (!btAdapter.isEnabled())
             btAdapter.enable();
 
+        Set<BluetoothDevice> boundedDevices = btAdapter.getBondedDevices();
+
+        for (BluetoothDevice device : boundedDevices) {
+            listener.onDeviceFound(device);
+        }
+
+    	final BroadcastReceiver discoverReceiver = new BroadcastReceiver() {
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                    listener.onDeviceFound(device);
+                } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
+                    listener.onRequestDeviceScanFinished();
+                    cordova.getActivity().unregisterReceiver(this);
+                }
+            }
+        };
+
         isBTScanning = true;
         dispatchJSEvent("onStartScanBT");
-        pos.scanQPos2Mode(activity, 10);
+        // pos.scanQPos2Mode(activity, scanBluetoothTime);
+
+        Activity activity = cordova.getActivity();
+        activity.registerReceiver(discoverReceiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
+        activity.registerReceiver(discoverReceiver, new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED));
+        btAdapter.startDiscovery();
     }
 
     private void connectBTDevice(CordovaArgs args) throws JSONException {
         String address = args.getString(0);
+
+        if(isBTScanning)
+            btAdapter.cancelDiscovery();
+
         pos.connectBluetoothDevice(true, 20, address);
     }
 
@@ -212,11 +240,11 @@ public class MPos extends CordovaPlugin {
     // LISTENERS
     class PosListener implements QPOSServiceListener {
         @Override
-        public void getMifareCardVersion(Hashtable<String, String> arg0) {
+        public void getMifareFastReadData(Hashtable<String, String> arg0) {
         }
 
         @Override
-        public void getMifareFastReadData(Hashtable<String, String> arg0) {
+        public void getMifareCardVersion(Hashtable<String, String> arg0) {
         }
 
         @Override
@@ -621,7 +649,7 @@ public class MPos extends CordovaPlugin {
         @Override
         public void onRequestWaitingUser() {
             logTrace("+++onRequestWaitingUser: Please insert/swipe card");
-            dispatchJSEvent("onRequestWaitingUser");
+            dispatchJSEvent("onRequestCard");
         }
 
         @Override
@@ -764,6 +792,43 @@ public class MPos extends CordovaPlugin {
 
         @Override
         public void onReturnRSAResult(String arg0) {
+        }
+
+        // NEW METHODS LISTENER
+        @Override
+        public void onRequestDevice() {
+        }
+
+        @Override
+        public void onGetDevicePubKey(String var1) {
+        }
+
+        @Override
+        public void onGetKeyCheckValue(List<String> var1) {
+        }
+
+        @Override
+        public void onBatchReadMifareCardResult(String var1, Hashtable<String, List<String>> var2) {
+        }
+
+        @Override
+        public void onBatchWriteMifareCardResult(String var1, Hashtable<String, List<String>> var2) {
+        }
+
+        @Override
+        public void onGetBuzzerStatusResult(String var1) {
+        }
+
+        @Override
+        public void onRequestNoQposDetectedUnbond() {
+        }
+
+        @Override
+        public void onSetBuzzerStatusResult(boolean var1) {
+        }
+
+        @Override
+        public void onSetBuzzerTimeResult(boolean var1) {
         }
     }
 }
